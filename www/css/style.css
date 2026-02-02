@@ -1,0 +1,182 @@
+/* --- RESET & VARIABLES --- */
+:root {
+    /* DARK MODE (Default) */
+    --bg-color: #161b22;
+    --card-bg: #21262d;
+    --sidebar-bg: #0d1117;     /* Dark Sidebar */
+    --nav-hover: #21262d;      /* Dark Hover */
+    --text-main: #f0f6fc;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --border: #30363d;
+    --sidebar-width: 280px;
+}
+
+/* LIGHT MODE OVERRIDES */
+body.light-mode {
+    --bg-color: #ffffff;
+    --card-bg: #f6f8fa;
+    --sidebar-bg: #f6f8fa;     /* Light Sidebar */
+    --nav-hover: #eaeef2;      /* Light Hover */
+    --text-main: #24292f;      /* Dark Text */
+    --text-muted: #57606a;
+    --accent: #0969da;
+    --border: #d0d7de;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+body { background-color: var(--bg-color); color: var(--text-main); transition: background 0.3s, color 0.3s; }
+
+a { text-decoration: none; color: #ff7300; }
+
+/* --- HEADER --- */
+header {
+    background-color: var(--bg-color);
+    border-bottom: 1px solid var(--border);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: background 0.3s;
+}
+
+.menu-btn { background: none; border: none; cursor: pointer; color: var(--text-main); }
+.header-title { font-size: 1.2rem; font-weight: bold; color: var(--text-main); }
+
+/* --- SIDEBAR --- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: var(--sidebar-width);
+    height: 100%;
+    
+    /* FIXED: Use variable instead of hardcoded color */
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    
+    transition: left 0.3s, background 0.3s;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar.active { left: 0; }
+
+.sidebar-header { padding: 30px 20px; text-align: center; border-bottom: 1px solid var(--border); }
+.sidebar-logo img { width: 80px; margin-bottom: 10px; }
+.sidebar-title { font-size: 1.5rem; font-weight: bold; color: var(--text-main); }
+.sidebar-subtitle { font-size: 0.9rem; color: var(--text-muted); font-style: italic; }
+
+.nav-links { padding: 20px 0; flex-grow: 1; }
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 25px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+/* FIXED: Use variable for hover background */
+.nav-item:hover, .nav-item.active { 
+    background-color: var(--nav-hover); 
+    color: var(--text-main); 
+    border-left: 3px solid var(--accent); 
+}
+
+.nav-icon { width: 20px; margin-right: 15px; fill: currentColor; }
+
+.sidebar-footer { padding: 20px; display: flex; justify-content: space-around; border-top: 1px solid var(--border); }
+.social-icon { width: 24px; height: 24px; fill: var(--text-muted); cursor: pointer; }
+.social-icon:hover { fill: var(--accent); }
+
+/* Overlay */
+.overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 150;
+    display: none;
+}
+.overlay.active { display: block; }
+
+/* --- MAIN CONTENT --- */
+main { padding: 20px; max-width: 800px; margin: 0 auto; }
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px; /* Spacing between posts */
+    transition: background 0.3s;
+}
+
+.card-img { width: 100%; height: 160px; object-fit: cover; }
+.card-content { padding: 15px; }
+
+.card-title { font-size: 1.3rem; margin-bottom: 8px; color: var(--text-main); }
+.card-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 15px; }
+
+.card-meta {
+    display: flex;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    align-items: center;
+}
+.meta-item { display: flex; align-items: center; margin-right: 15px; }
+.meta-icon { width: 14px; margin-right: 5px; fill: currentColor; }
+
+/* --- FOOTER --- */
+footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.8rem; margin-top: 20px; border-top: 1px solid var(--border); }
+
+/* --- TOGGLE BUTTON --- */
+.theme-toggle {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    color: var(--text-main);
+}
+.theme-toggle:hover {
+    background-color: var(--nav-hover);
+}
+
+/* FIX: Force the theme icon to always have a size */
+.theme-toggle svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    display: block; /* Prevents tiny gaps */
+}
+
+/* 1. Base Icon Style */
+.icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    vertical-align: middle;
+    margin-right: 5px;
+    opacity: 0.7; /* Makes it look slightly muted/grey like text */
+}
+
+/* 2. Calendar Icon (Encoded SVG) */
+.icon-calendar {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238b949e'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7'/%3E%3C/svg%3E");
+}
+
+/* 3. Folder Icon (Encoded SVG) */
+.icon-folder {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238b949e'%3E%3Cpath d='M4 4a2 2 0 0 0-2 2v12a2 2 0 0 0 .087.586l2.977-7.937A1 1 0 0 1 6 10h12V9a2 2 0 0 0-2-2h-4.532l-1.9-2.28A2 2 0 0 0 8.032 4H4Zm2.693 8H6.5l-3 8H18l3-8H6.693Z'/%3E%3C/svg%3E");
+}
