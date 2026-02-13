@@ -5,6 +5,10 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+# 1. PERMISSIONS: Required to create Releases and Tags
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,34 +34,39 @@ jobs:
           cd myapp
           cordova platform add android
 
+      # 2. VERSION INCREMENT: Updates config.xml version using the Github Run Number
+      # This ensures every build has a higher version (e.g., 1.0.55)
+      - name: Increment App Version
+        run: |
+          cd myapp
+          
+          # Set the version string (e.g., version="1.0.55")
+          sed -i 's/version="[^"]*"/version="1.0.${{ github.run_number }}"/' config.xml
+          
+          # Set the integer version code (Required for Android updates)
+          # We check if android-versionCode exists; if not, we add it to the <widget> tag
+          if grep -q "android-versionCode" config.xml; then
+            sed -i 's/android-versionCode="[^"]*"/android-versionCode="${{ github.run_number }}"/' config.xml
+          else
+            sed -i 's/<widget/<widget android-versionCode="${{ github.run_number }}"/' config.xml
+          fi
+          
+          echo "Updated version to 1.0.${{ github.run_number }}"
+
       - name: Setup Resources (Validation Hack)
         run: |
           mkdir -p myapp/resources
           cp resources/icon.png myapp/resources/icon.png
-          
-          # 1. Trick cordova-res with a big image so it generates ICONS successfully
           convert resources/splash.png -resize 2732x2732! myapp/resources/splash.png
-          
-          # 2. Generate ONLY icons (We skip splash generation to avoid adding broken tags)
           cd myapp
           cordova-res android --icon
 
       - name: Setup Real Splash Screen
         run: |
-          # 3. Overwrite the fake image with your REAL 1179px image
-          # We place it in the project root resources folder where Cordova expects it
           cp resources/splash.png myapp/resources/splash.png
-          
           cd myapp
-          
-          # 4. REMOVE old broken <splash> tags if they exist
           sed -i '/<splash/d' config.xml
-          
-          # 5. Add the correct Android 12 preferences
-          # Note: We point to 'resources/splash.png', NOT '@drawable'
           sed -i 's|<platform name="android">|<platform name="android">\n        <preference name="AndroidWindowSplashScreenAnimatedIcon" value="resources/splash.png" />\n        <preference name="AndroidWindowSplashScreenBackground" value="#0c2c4a" />|' config.xml
-          
-          # 6. Add delay preference
           sed -i '/<\/widget>/i \    <preference name="SplashScreenDelay" value="1000" />' config.xml
 
       - name: Setup Website Files
@@ -70,8 +79,17 @@ jobs:
           cd myapp
           cordova build android --debug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      # 3. RENAME & RELEASE: Rename the file and create a GitHub Release
+      - name: Create Release and Upload APK
+        uses: softprops/action-gh-release@v1
         with:
-          name: OhmLaws-APK
-          path: myapp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          # Tag name triggers the release creation (e.g., v1.0.55)
+          tag_name: v1.0.${{ github.run_number }}
+          name: Release v1.0.${{ github.run_number }}
+          draft: false
+          prerelease: false
+          # We rename the APK on the fly here during upload matching
+          files: |
+            myapp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
